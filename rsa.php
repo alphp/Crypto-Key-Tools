@@ -3,6 +3,8 @@
 
 	require __DIR__ . '/vendor/autoload.php';
 
+	use phpseclib3\Crypt\EC;
+	use phpseclib3\Crypt\EC\Curves\Ed25519;
 	use phpseclib3\Crypt\RSA;
 
 	$input = filter_input_array(INPUT_POST, [
@@ -10,7 +12,7 @@
 			'filter' => FILTER_VALIDATE_INT,
 			'options' => [
 				'default' => 2,
-				'min_range' => 2,
+				'min_range' => 1,
 				'max_range' => 4,
 			],
 		],
@@ -30,13 +32,19 @@
 		],
 	]);
 
+	$input['comment'] = ($input['comment'] === 'id_rsa' and $input['bits'] === 1) ? 'id_ed225519' : $input['comment'];
 	$input['bits'] *= 1024;
-	$private = RSA::createKey($input['bits'])->withPassword($input['password']);
+
+	$private = match ($input['bits']) {
+		1024 => EC::createKey('Ed25519')->withPassword($input['password']),
+		default => RSA::createKey($input['bits'])->withPassword($input['password']),
+	};
 	$public = $private->getPublicKey();
 
 	$rsa = [
 		'comment' => $input['comment'],
 		'key' => $private->toString('PKCS8', ['comment' => $input['comment']]),
+		'key_ssh' => $private->toString('OpenSSH', ['comment' => $input['comment']]),
 		'pub' => $public->toString('PKCS8', ['comment' => $input['comment']]),
 		'ssh' => $public->toString('OpenSSH', ['comment' => $input['comment']]),
 		'ppk' => $private->toString('PuTTY', ['comment' => $input['comment']]),

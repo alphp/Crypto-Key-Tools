@@ -19,7 +19,7 @@
 				function generate() {
 					const $btn = $("#generate");
 					$btn.prop("disabled", true).html(
-						'<span class="spinner-border spinner-border-sm me-3" role="status"></span>Generando…'
+						'<span class="spinner-border spinner-border-sm me-3" role="status"></span>'
 					);
 					$("#error-alert").addClass("d-none");
 
@@ -30,6 +30,7 @@
 						dataType: "json",
 						success: function (rsa) {
 							$("#key").val(rsa.key);
+							$("#key_ssh").val(rsa.key_ssh);
 							$("#pub").val(rsa.pub);
 							$("#ssh").val(rsa.ssh);
 							$("#ppk").val(rsa.ppk);
@@ -48,7 +49,7 @@
 						},
 						complete: function () {
 							$btn.prop("disabled", false).html(
-								'<i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generar claves'
+								'<i class="fa-solid fa-wand-magic-sparkles me-2"></i>'
 							);
 						}
 					});
@@ -68,7 +69,7 @@
 				// ── Copy ──────────────────────────────────────────────
 				$(".tool-action-btn.copy").on("click", function () {
 					const $btn    = $(this);
-					const textarea = $btn.closest(".card").find("textarea");
+					const textarea = $btn.closest(".card").find("textarea").not('.hidden');
 					const text    = textarea.val();
 
 					if (!text) return;
@@ -96,7 +97,7 @@
 
 				// ── Download ──────────────────────────────────────────
 				$(".tool-action-btn.download").on("click", function () {
-					const textarea = $(this).closest(".card").find("textarea");
+					const textarea = $(this).closest(".card").find("textarea").not('.hidden');
 					const text     = textarea.val();
 
 					if (!text) return;
@@ -109,15 +110,20 @@
 					file.click();
 					URL.revokeObjectURL(file.href);
 				});
+
+				// ── Toogle OpenSSH/PKCS8 ────────────────────────────────
+				$(".tool-action-btn.toogle-ssh").on("click", function () {
+					$(this).closest(".card").find("textarea").toggleClass('hidden');
+					$(this).closest(".card").find(".tool-action-btn.download").toggleClass('hidden');
+					$(".tool-action-btn.toogle-ssh").toggleClass('hidden');
+				});
 			});
 		</script>
 		<style>
-			@media (max-width: 1400px) {
-				.container { max-width: unset !important; }
-				.col-xl-10 { width: 90%; }
-			}
+			.col-xl-10 { width: 90% !important; }
 			.card-body > .font-monospace { font-family: "Fira Code", monospace !important; font-size: .70rem; min-height: 12rem; border: none; resize: none; white-space: nowrap; }
 			.card-body > #ssh { min-height: auto; }
+			.hidden { display: none; }
 		</style>
 	</head>
 
@@ -139,14 +145,15 @@
 								</p>
 							</div>
 
-							<form id="options" class="row g-3">
-								<div class="col-md-2">
+							<form id="options" class="row g-3" title="Bits">
+								<div class="col-md-3">
 									<div class="input-group">
-										<span class="input-group-text"><i class="fa-solid fa-microchip me-1"></i>Bits</span>
+										<span class="input-group-text"><i class="fa-solid fa-microchip me-1"></i></span>
 										<select id="bits" name="bits" class="form-select">
-											<option value="2" selected>2048</option>
-											<option value="3">3072</option>
-											<option value="4">4096</option>
+											<option value="1">ED25519 (256 bit)</option>
+											<option value="2" selected>RSA 2048 bit</option>
+											<option value="3">RSA 3072 bit</option>
+											<option value="4">RSA 4096 bit</option>
 											<!--
 											<option value="5" disabled>5120</option>
 											<option value="6" disabled>6144</option>
@@ -157,28 +164,27 @@
 									</div>
 								</div>
 
-								<div class="col-md-4">
+								<div class="col-md-4" title="Comment">
 									<div class="input-group">
-										<span class="input-group-text" id="basic-addon-comment"><i class="fa-solid fa-comment me-1"></i>Comment</span>
+										<span class="input-group-text" id="basic-addon-comment"><i class="fa-solid fa-comment me-1"></i></span>
 										<input type="text" id="comment" name="comment" class="form-control" placeholder="usuario@host" aria-label="Comment" aria-describedby="basic-addon-comment">
 									</div>
 								</div>
 
-								<div class="col-md-4">
+								<div class="col-md-4" title="Password">
 									<div class="input-group">
-										<span class="input-group-text"><i class="fa-solid fa-lock me-1"></i>Password</span>
-										<input type="password" id="password" name="password" class="form-control" placeholder="Opcional" aria-label="Password">
+										<span class="input-group-text"><i class="fa-solid fa-lock me-1"></i></span>
+										<input type="password" id="password" name="password" class="form-control" placeholder="Password (Opcional)" aria-label="Password">
 										<button type="button" id="toggle-password" class="btn btn-outline-secondary" title="Mostrar/ocultar contraseña" tabindex="-1">
 											<i class="fa-regular fa-eye"></i>
 										</button>
 									</div>
 								</div>
 
-								<div class="col-md-2">
+								<div class="col-md-1" title="Generar claves">
 									<div class="input-group">
 										<button id="generate" type="submit" class="form-control btn btn-primary">
 											<i class="fa-solid fa-wand-magic-sparkles me-1"></i>
-											Generar claves
 										</button>
 									</div>
 								</div>
@@ -203,16 +209,26 @@
 										<span class="badge text-bg-danger ms-2">Keep Secret</span>
 									</div>
 									<div class="d-flex gap-2">
+										<button class="btn btn-outline-secondary tool-action-btn toogle-ssh" title="OpenSSH/PKCS8">
+											PKCS8
+										</button>
+										<button class="btn btn-outline-secondary tool-action-btn toogle-ssh hidden" title="OpenSSH/PKCS8">
+											OpenSSH
+										</button>
 										<button class="btn btn-outline-secondary tool-action-btn copy" title="Copiar">
 											<i class="fa-regular fa-copy"></i>
 										</button>
 										<button class="btn btn-danger tool-action-btn download" title="Descargar" data-extension=".key" data-mimetype="application/pkcs8">
 											<i class="fa-solid fa-download"></i> .key
 										</button>
+										<button class="btn btn-danger tool-action-btn download hidden" title="Descargar" data-extension=".ssh.key" data-mimetype="application/pkcs8">
+											<i class="fa-solid fa-download"></i> .ssh.key
+										</button>
 									</div>
 								</div>
 								<div class="card-body">
 									<textarea readonly id="key" class="form-control font-monospace"></textarea>
+									<textarea readonly id="key_ssh" class="form-control font-monospace hidden"></textarea>
 								</div>
 							</div>
 						</div>
