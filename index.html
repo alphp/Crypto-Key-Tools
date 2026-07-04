@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>SSH Key Generator</title>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js" integrity="sha512-HvOjJrdwNpDbkGJIG2ZNqDlVqMo77qbs4Me4cah0HoDrfhrbA+8SBlZn1KrvAQw7cILLPFJvdwIgphzQmMm+Pw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+		<script>
+			$(function () {
+
+				// ── Generate ──────────────────────────────────────────
+				function generate() {
+					const $btn = $("#generate");
+					$btn.prop("disabled", true).html(
+						'<span class="spinner-border spinner-border-sm me-3" role="status"></span>Generando…'
+					);
+					$("#error-alert").addClass("d-none");
+
+					$.ajax({
+						url: "./rsa.php",
+						method: "POST",
+						data: $("#options").serialize(),
+						dataType: "json",
+						success: function (rsa) {
+							$("#key").val(rsa.key);
+							$("#pub").val(rsa.pub);
+							$("#ssh").val(rsa.ssh);
+							$("#ppk").val(rsa.ppk);
+							// Solo actualiza comment si el servidor devuelve un valor distinto
+							if (rsa.comment && rsa.comment !== $("#comment").val()) {
+								$("#comment").val(rsa.comment);
+							}
+						},
+						error: function (xhr) {
+							$("#key, #pub, #ssh, #ppk").val("");
+							const msg = xhr.responseJSON && xhr.responseJSON.error
+								? xhr.responseJSON.error
+								: "Error al generar las claves. Inténtalo de nuevo.";
+							$("#error-msg").text(msg);
+							$("#error-alert").removeClass("d-none");
+						},
+						complete: function () {
+							$btn.prop("disabled", false).html(
+								'<i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generar claves'
+							);
+						}
+					});
+				}
+
+				$("#generate").on("click", generate);
+				$("#options").on("submit", function (e) { e.preventDefault(); generate(); });
+
+				// ── Toggle password ───────────────────────────────────
+				$("#toggle-password").on("click", function () {
+					const $input = $("#password");
+					const show   = $input.attr("type") === "password";
+					$input.attr("type", show ? "text" : "password");
+					$(this).find("i").toggleClass("fa-eye", !show).toggleClass("fa-eye-slash", show);
+				});
+
+				// ── Copy ──────────────────────────────────────────────
+				$(".tool-action-btn.copy").on("click", function () {
+					const $btn    = $(this);
+					const textarea = $btn.closest(".card").find("textarea");
+					const text    = textarea.val();
+
+					if (!text) return;
+
+					const origHtml = $btn.html();
+
+					navigator.clipboard.writeText(text)
+						.then(function () {
+							$btn.html('<i class="fa-solid fa-check me-2"></i>Copiado');
+							setTimeout(function () { $btn.html(origHtml); }, 1800);
+						})
+						.catch(function () {
+							// Fallback para contextos sin HTTPS
+							try {
+								textarea[0].select();
+								document.execCommand("copy");
+								$btn.html('<i class="fa-solid fa-check me-2"></i>Copiado');
+								setTimeout(function () { $btn.html(origHtml); }, 1800);
+							} catch (e) {
+								$btn.html('<i class="fa-solid fa-xmark me-2"></i>Error');
+								setTimeout(function () { $btn.html(origHtml); }, 2000);
+							}
+						});
+				});
+
+				// ── Download ──────────────────────────────────────────
+				$(".tool-action-btn.download").on("click", function () {
+					const textarea = $(this).closest(".card").find("textarea");
+					const text     = textarea.val();
+
+					if (!text) return;
+
+					const file = document.createElement("a");
+					file.download = ($("#comment").val() || "id_rsa") + $(this).data("extension");
+					file.href = URL.createObjectURL(
+						new Blob([text], { type: $(this).data("mimetype") })
+					);
+					file.click();
+					URL.revokeObjectURL(file.href);
+				});
+			});
+		</script>
+		<style>
+			@media (max-width: 1400px) {
+				.container { max-width: unset !important; }
+				.col-xl-10 { width: 90%; }
+			}
+			.card-body > .font-monospace { font-family: "Fira Code", monospace !important; font-size: .70rem; min-height: 12rem; border: none; resize: none; white-space: nowrap; }
+			.card-body > #ssh { min-height: auto; }
+		</style>
+	</head>
+
+	<body class="bg-body-tertiary">
+		<div class="container py-4">
+			<div class="row justify-content-center">
+				<div class="col-12 col-xl-10">
+
+					<div class="card border-0 shadow-sm mb-4">
+
+						<div class="card-body p-4">
+
+							<div class="d-flex align-items-baseline flex-wrap gap-3 mb-2">
+								<h1 class="h3 mb-1">
+									<i class="fa-solid fa-key me-2"></i>SSH Key Generator
+								</h1>
+								<p class="text-body-secondary mb-0">
+									Genera claves RSA y exporta formatos compatibles con SSH y PuTTY.
+								</p>
+							</div>
+
+							<form id="options" class="row g-3">
+								<div class="col-md-2">
+									<div class="input-group">
+										<span class="input-group-text"><i class="fa-solid fa-microchip me-1"></i>Bits</span>
+										<select id="bits" name="bits" class="form-select">
+											<option value="2" selected>2048</option>
+											<option value="3">3072</option>
+											<option value="4">4096</option>
+											<!--
+											<option value="5" disabled>5120</option>
+											<option value="6" disabled>6144</option>
+											<option value="7" disabled>7168</option>
+											<option value="8" disabled>8192</option>
+											-->
+										</select>
+									</div>
+								</div>
+
+								<div class="col-md-4">
+									<div class="input-group">
+										<span class="input-group-text" id="basic-addon-comment"><i class="fa-solid fa-comment me-1"></i>Comment</span>
+										<input type="text" id="comment" name="comment" class="form-control" placeholder="usuario@host" aria-label="Comment" aria-describedby="basic-addon-comment">
+									</div>
+								</div>
+
+								<div class="col-md-4">
+									<div class="input-group">
+										<span class="input-group-text"><i class="fa-solid fa-lock me-1"></i>Password</span>
+										<input type="password" id="password" name="password" class="form-control" placeholder="Opcional" aria-label="Password">
+										<button type="button" id="toggle-password" class="btn btn-outline-secondary" title="Mostrar/ocultar contraseña" tabindex="-1">
+											<i class="fa-regular fa-eye"></i>
+										</button>
+									</div>
+								</div>
+
+								<div class="col-md-2">
+									<div class="input-group">
+										<button id="generate" type="submit" class="form-control btn btn-primary">
+											<i class="fa-solid fa-wand-magic-sparkles me-1"></i>
+											Generar claves
+										</button>
+									</div>
+								</div>
+							</form>
+
+						</div>
+
+					</div>
+
+					<div id="error-alert" class="alert alert-danger d-none mb-4" role="alert">
+						<i class="fa-solid fa-circle-exclamation me-2"></i>
+						<span id="error-msg"></span>
+					</div>
+
+					<div class="row g-4">
+
+						<div class="col-lg-6">
+							<div class="card shadow-sm border-danger-subtle">
+								<div class="card-header bg-danger-subtle d-flex justify-content-between align-items-center">
+									<div>
+										<strong><i class="fa-solid fa-user-secret me-2"></i>Private Key</strong>
+										<span class="badge text-bg-danger ms-2">Keep Secret</span>
+									</div>
+									<div class="d-flex gap-2">
+										<button class="btn btn-outline-secondary tool-action-btn copy" title="Copiar">
+											<i class="fa-regular fa-copy"></i>
+										</button>
+										<button class="btn btn-danger tool-action-btn download" title="Descargar" data-extension=".key" data-mimetype="application/pkcs8">
+											<i class="fa-solid fa-download"></i> .key
+										</button>
+									</div>
+								</div>
+								<div class="card-body">
+									<textarea readonly id="key" class="form-control font-monospace"></textarea>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-lg-6">
+							<div class="card shadow-sm border-success-subtle h-100">
+								<div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
+									<div>
+										<strong><i class="fa-solid fa-share-nodes me-2"></i>Public Key</strong>
+										<span class="badge text-bg-success ms-2">Share This</span>
+									</div>
+									<div class="d-flex gap-2">
+										<button class="btn btn-outline-secondary tool-action-btn copy" title="Copiar">
+											<i class="fa-regular fa-copy"></i>
+										</button>
+										<button class="btn btn-success tool-action-btn download" title="Descargar" data-extension=".pem" data-mimetype="application/x-pem-file">
+											<i class="fa-solid fa-download"></i> .pem
+										</button>
+									</div>
+								</div>
+								<div class="card-body">
+									<textarea readonly id="pub" class="form-control font-monospace"></textarea>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="card shadow-sm border-info-subtle h-100">
+								<div class="card-header bg-info-subtle d-flex justify-content-between align-items-center">
+									<strong><i class="fa-solid fa-terminal me-2"></i>OpenSSH Public Key</strong>
+									<div class="d-flex gap-2">
+										<button class="btn btn-outline-secondary tool-action-btn copy" title="Copiar">
+											<i class="fa-regular fa-copy"></i>
+										</button>
+										<button class="btn btn-info tool-action-btn download" title="Descargar" data-extension=".pub" data-mimetype="text/plain">
+											<i class="fa-solid fa-download"></i> .pub
+										</button>
+									</div>
+								</div>
+								<div class="card-body">
+									<textarea readonly id="ssh" class="form-control font-monospace"></textarea>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="card shadow-sm border-primary-subtle">
+								<div class="card-header bg-primary-subtle d-flex justify-content-between align-items-center">
+									<div>
+										<strong><i class="fa-solid fa-network-wired me-2"></i>PuTTY Private Key</strong>
+										<span class="badge text-bg-primary ms-2">.ppk</span>
+									</div>
+									<div class="d-flex gap-2">
+										<button class="btn btn-outline-secondary tool-action-btn copy" title="Copiar">
+											<i class="fa-regular fa-copy"></i>
+										</button>
+										<button class="btn btn-primary tool-action-btn download" title="Descargar" data-extension=".ppk" data-mimetype="application/octet-stream">
+											<i class="fa-solid fa-download"></i> .ppk
+										</button>
+									</div>
+								</div>
+								<div class="card-body">
+									<textarea readonly id="ppk" class="form-control font-monospace"></textarea>
+								</div>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
