@@ -9,4 +9,5 @@
 .card-body > #ssh { min-height: auto; }
 .card-body a { text-decoration: none; color: inherit; }
 .dragover { border: 2px dashed #999; background-color: #eee; }
-.hidden { display: none; }
+.hidden { display: none !important; }
+.header > h1 { cursor: pointer; }

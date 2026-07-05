@@ -26,12 +26,10 @@
 
 						<div class="card-body p-4">
 
-							<div class="d-flex align-items-baseline flex-wrap gap-3 mb-2">
-								<a href="./convert.html">
-									<h1 class="h3 mb-1">
-										<i class="fa-solid fa-key me-2"></i>SSH Key Generator
-									</h1>
-								</a>
+							<div class="d-flex align-items-baseline flex-wrap gap-3 mb-2 header">
+								<h1 class="h3 mb-1">
+									<i class="fa-solid fa-key me-2"></i>SSH Key Generator
+								</h1>
 								<p class="text-body-secondary mb-0">
 									Genera claves RSA y exporta formatos compatibles con SSH y PuTTY.
 								</p>
@@ -81,6 +79,73 @@
 										<button type="submit" class="form-control btn btn-primary hidden">
 											<span class="spinner-border spinner-border-sm me-3" role="status"></span>
 										</button>
+									</div>
+								</div>
+							</form>
+
+							<div class="d-flex align-items-baseline flex-wrap gap-3 mb-2 header hidden">
+								<h1 class="h3 mb-1">
+									<i class="fa-solid fa-key me-2"></i>SSH Key Converter
+								</h1>
+								<p class="text-body-secondary mb-0">
+									Convierte claves RSA y exporta formatos compatibles con SSH y PuTTY.
+								</p>
+							</div>
+
+							<form id="options" class="row g-3 hidden" enctype="multipart/form-data" action="./convert.php">
+								<div class="col-lg-6">
+									<div class="card shadow-sm border-danger-subtle">
+										<input type="file" name="keyfile" accept=".key" id="keyfile" class="hidden">
+										<div class="card-header bg-danger-subtle d-flex justify-content-between align-items-center">
+											<strong><i class="fa-solid fa-user-secret me-2"></i>Private Key</strong>
+											<div class="key-file"></div>
+											<div class="d-flex gap-2">
+												<div class="btn btn-outline-secondary tool-action-btn paste" title="Pegar">
+													<i class="fa-regular fa-paste"></i>
+												</div>
+												<div class="btn btn-outline-secondary tool-action-btn upload" title="Subir archivo de clave privada">
+													<i class="fa fa-upload"></i>
+												</div>
+												<div class="btn btn-outline-secondary tool-action-btn reset" title="Borrar">
+													<i class="fa fa-trash"></i>
+												</div>
+											</div>
+										</div>
+										<div class="card-body">
+											<textarea name="key" class="form-control font-monospace min"></textarea>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-md-6">
+									<div class="row">
+										<div class="input-group col-md-12 mb-3" title="Comment">
+											<span class="input-group-text" id="basic-addon-comment"><i class="fa-solid fa-comment me-1"></i></span>
+											<input type="text" id="comment" name="comment" class="form-control" placeholder="usuario@host" aria-label="Comment" aria-describedby="basic-addon-comment">
+										</div>
+
+										<div class="col-md-12 mb-3" title="Password">
+											<div class="input-group">
+												<span class="input-group-text"><i class="fa-solid fa-lock me-1"></i></span>
+												<input type="password" id="password" name="password" class="form-control" placeholder="Password (Opcional)" aria-label="Password">
+												<button type="button" id="toggle-password" class="btn btn-outline-secondary" title="Mostrar/ocultar contraseña" tabindex="-1">
+													<i class="fa-regular fa-eye"></i>
+												</button>
+											</div>
+										</div>
+
+										<div class="col-md-12" title="Generar claves">
+											<div id="generate" class="input-group">
+												<button type="submit" class="form-control btn btn-primary">
+													<i class="fa-solid fa-wand-magic-sparkles me-1"></i>
+													Convertir clave
+												</button>
+												<button type="submit" class="form-control btn btn-primary hidden">
+													<span class="spinner-border spinner-border-sm me-3" role="status"></span>
+													Convirtiendo clave...
+												</button>
+											</div>
+										</div>
 									</div>
 								</div>
 							</form>

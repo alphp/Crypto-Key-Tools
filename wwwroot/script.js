@@ -6,15 +6,22 @@
 $(function () {
 
   // ── Generate ──────────────────────────────────────────
+  $(".header > h1").on("click", function() {
+    $(".header").toggleClass("hidden");
+    $("form").toggleClass("hidden");
+    $("form input").val('');
+    $("textarea").val('');
+  });
+
   function generate() {
     const $btn = $("#generate > button");
     $btn.prop("disabled", true).toggleClass("hidden");
     $("#error-alert").addClass("d-none");
 
-    var form = new FormData($("#options")[0]);
+    var form = new FormData($("form").not('.hidden')[0]);
 
     $.ajax({
-      url: $("#options").attr('action'),
+      url: $("form").not('.hidden').attr('action'),
       method: "POST",
       data: form,
       dataType: "json",
@@ -27,8 +34,8 @@ $(function () {
         $("#ssh").val(rsa.ssh);
         $("#ppk").val(rsa.ppk);
         // Solo actualiza comment si el servidor devuelve un valor distinto
-        if (rsa.comment && rsa.comment !== $("#comment").val()) {
-          $("#comment").val(rsa.comment);
+        if (rsa.comment && rsa.comment !== $("form").not('.hidden').find("#comment").val()) {
+          $("form").not('.hidden').find("#comment").val(rsa.comment);
         }
       },
       error: function (xhr) {
