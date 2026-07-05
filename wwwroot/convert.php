@@ -46,8 +46,19 @@
 				],
 			]);
 
-			if ($_FILES['keyfile'] ?? false) {
-				$input['key'] = file_get_contents($_FILES['keyfile']['tmp_name']);
+			if ($_FILES['keyfile']['tmp_name'] ?? false) {
+				if (is_file($_FILES['keyfile']['tmp_name'])) {
+					$input['key'] = file_get_contents($_FILES['keyfile']['tmp_name']);
+				}
+			}
+
+			if (empty($input['key'])) {
+				$json = json_encode(['error' => 'Error: key missing']);
+				http_response_code(400);
+				header('Content-Type: application/json');
+				header('Cache-Control: no-store');
+				echo $json;
+				die();
 			}
 
 			return new static($input['key'], $input['password'], $input['comment']);

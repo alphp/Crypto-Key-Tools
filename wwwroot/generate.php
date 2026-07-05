@@ -78,7 +78,6 @@
 		}
 	}
 
-
 	$key = KeyFactory::init();
 
 	$json = $key->__toString();

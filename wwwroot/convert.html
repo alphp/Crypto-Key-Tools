@@ -5,213 +5,16 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>SSH Key Converter</title>
 
+		<link rel="icon" type="image/x-icon" href="./favicon.ico">
+
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+		<link rel="stylesheet" href="./style.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js" integrity="sha512-HvOjJrdwNpDbkGJIG2ZNqDlVqMo77qbs4Me4cah0HoDrfhrbA+8SBlZn1KrvAQw7cILLPFJvdwIgphzQmMm+Pw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-		<script>
-			$(function () {
-
-				// ── Generate ──────────────────────────────────────────
-				function generate() {
-					const $btn = $("#generate");
-					$btn.prop("disabled", true).html(
-						'<span class="spinner-border spinner-border-sm me-3" role="status"></span>Convirtiendo clave...'
-					);
-					$("#error-alert").addClass("d-none");
-
-					var form = new FormData($("#options")[0]);
-
-					$.ajax({
-						url: ".",
-						method: "POST",
-						data: form,
-						dataType: "json",
-						processData: false,
-						contentType: false,
-						success: function (rsa) {
-							$("#key").val(rsa.key);
-							$("#key_ssh").val(rsa.key_ssh);
-							$("#pub").val(rsa.pub);
-							$("#ssh").val(rsa.ssh);
-							$("#ppk").val(rsa.ppk);
-							// Solo actualiza comment si el servidor devuelve un valor distinto
-							if (rsa.comment && rsa.comment !== $("#comment").val()) {
-								$("#comment").val(rsa.comment);
-							}
-						},
-						error: function (xhr) {
-							$("#key, #pub, #ssh, #ppk").val("");
-							const msg = xhr.responseJSON && xhr.responseJSON.error
-								? xhr.responseJSON.error
-								: "Error al generar las claves. Inténtalo de nuevo.";
-							$("#error-msg").text(msg);
-							$("#error-alert").removeClass("d-none");
-						},
-						complete: function () {
-							$btn.prop("disabled", false).html(
-								'<i class="fa-solid fa-wand-magic-sparkles me-2"></i>Convertir clave'
-							);
-						}
-					});
-				}
-
-				$("#generate").on("click", generate);
-				$("#options").on("submit", function (e) { e.preventDefault(); generate(); });
-
-				// ── Toggle password ───────────────────────────────────
-				$("#toggle-password").on("click", function () {
-					const $input = $("#password");
-					const show   = $input.attr("type") === "password";
-					$input.attr("type", show ? "text" : "password");
-					$(this).find("i").toggleClass("fa-eye", !show).toggleClass("fa-eye-slash", show);
-				});
-
-				// ── Upload ─────────────────────────────────────────────
-				$(".tool-action-btn.reset").on("click", function () {
-					$(this).closest(".card").find("input[type='file']").val('');
-					$(this).closest(".card").find("textarea").val('');
-					$(this).parent().find('input[type="file"]').trigger("change");
-				});
-
-				$(".tool-action-btn.upload").on("click", function () {
-					$(this).blur();
-					$(this).closest(".card").find("input[type='file']").click();
-				});
-
-				$("input[type='file']").on("change", function() {
-					$(this).closest(".card").find("textarea").val($(this)[0].files[0].name);
-				});
-
-				$(".tool-action-btn.upload").closest(".card").on({
-					'dragover': function(event) {
-						$(this).addClass('dragover');
-						event.preventDefault();
-					},
-					'dragleave dragend': function(event) {
-						$(this).removeClass('dragover');
-						event.preventDefault();
-					},
-					'drop': function(event) {
-						$(this).removeClass('dragover');
-						event.preventDefault();
-
-						var files =  event.originalEvent.dataTransfer.files;
-						if (undefined == $(this).parent().find('input[type="file"]').attr('multiple')) {
-							var dt = new DataTransfer();
-							dt.items.add(files[0]);
-							files = dt.files;
-						}
-
-						$(this).parent().find('input[type="file"]')[0].files = files;
-						$(this).parent().find('input[type="file"]').trigger("change");
-					}
-				});
-
-				// ── Paste ──────────────────────────────────────────────
-				$(".tool-action-btn.paste").on("click", async function () {
-					const $btn    = $(this);
-					const textarea = $btn.closest(".card").find("textarea");
-					const origHtml = $btn.html();
-
-					if (!navigator.clipboard?.readText) {
-						$btn.html('<i class="fa-solid fa-xmark me-2"></i>No soportado');
-						setTimeout(() => $btn.html(origHtml), 2000);
-						return;
-					}
-
-					$btn.prop("disabled", true);
-
-					try {
-						const text = await navigator.clipboard.readText();
-
-						textarea.val(text).trigger("input").trigger("change");
-
-						$btn.html('<i class="fa-solid fa-check me-2"></i>Pegado');
-					} catch (err) {
-						console.error(err);
-						// Fallback para contextos sin HTTPS
-						try {
-							textarea[0].select();
-							document.execCommand("paste");
-							$btn.html('<i class="fa-solid fa-check me-2"></i>Pegado');
-							setTimeout(function () { $btn.html(origHtml); }, 1800);
-						} catch (e) {
-							$btn.html('<i class="fa-solid fa-xmark me-2"></i>Error');
-							setTimeout(function () { $btn.html(origHtml); }, 2000);
-						}
-					} finally {
-						setTimeout(() => {
-							$btn.html(origHtml);
-							$btn.prop("disabled", false);
-						}, 1800);
-					}
-				});
-
-				// ── Copy ──────────────────────────────────────────────
-				$(".tool-action-btn.copy").on("click", function () {
-					const $btn    = $(this);
-					const textarea = $btn.closest(".card").find("textarea").not('.hidden');
-					const text    = textarea.val();
-
-					if (!text) return;
-
-					const origHtml = $btn.html();
-
-					navigator.clipboard.writeText(text)
-						.then(function () {
-							$btn.html('<i class="fa-solid fa-check me-2"></i>Copiado');
-							setTimeout(function () { $btn.html(origHtml); }, 1800);
-						})
-						.catch(function () {
-							// Fallback para contextos sin HTTPS
-							try {
-								textarea[0].select();
-								document.execCommand("copy");
-								$btn.html('<i class="fa-solid fa-check me-2"></i>Copiado');
-								setTimeout(function () { $btn.html(origHtml); }, 1800);
-							} catch (e) {
-								$btn.html('<i class="fa-solid fa-xmark me-2"></i>Error');
-								setTimeout(function () { $btn.html(origHtml); }, 2000);
-							}
-						});
-				});
-
-				// ── Download ──────────────────────────────────────────
-				$(".tool-action-btn.download").on("click", function () {
-					const textarea = $(this).closest(".card").find("textarea").not('.hidden');
-					const text     = textarea.val();
-
-					if (!text) return;
-
-					const file = document.createElement("a");
-					file.download = ($("#comment").val() || "id_rsa") + $(this).data("extension");
-					file.href = URL.createObjectURL(
-						new Blob([text], { type: $(this).data("mimetype") })
-					);
-					file.click();
-					URL.revokeObjectURL(file.href);
-				});
-
-				// ── Toogle OpenSSH/PKCS8 ────────────────────────────────
-				$(".tool-action-btn.toogle-ssh").on("click", function () {
-					$(this).closest(".card").find("textarea").toggleClass('hidden');
-					$(this).closest(".card").find(".tool-action-btn.download").toggleClass('hidden');
-					$(".tool-action-btn.toogle-ssh").toggleClass('hidden');
-				});
-			});
-		</script>
-		<style>
-			.col-xl-10 { width: 90% !important; }
-			.card-body > .font-monospace { font-family: "Fira Code", monospace !important; font-size: .70rem; min-height: 12rem; border: none; resize: none; white-space: nowrap; }
-			.card-body > .font-monospace.min { min-height: 3.6rem; }
-			.card-body > #ssh { min-height: auto; }
-			.hidden { display: none; }
-			.dragover { border: 2px dashed #999; background-color: #eee; }
-		</style>
+		<script src="./script.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	</head>
 
 	<body class="bg-body-tertiary">
@@ -224,15 +27,17 @@
 						<div class="card-body p-4">
 
 							<div class="d-flex align-items-baseline flex-wrap gap-3 mb-2">
-								<h1 class="h3 mb-1">
-									<i class="fa-solid fa-key me-2"></i>SSH Key Converter
-								</h1>
+								<a href="./">
+									<h1 class="h3 mb-1">
+										<i class="fa-solid fa-key me-2"></i>SSH Key Converter
+									</h1>
+								</a>
 								<p class="text-body-secondary mb-0">
 									Convierte claves RSA y exporta formatos compatibles con SSH y PuTTY.
 								</p>
 							</div>
 
-							<form id="options" class="row g-3" enctype="multipart/form-data">
+							<form id="options" class="row g-3" enctype="multipart/form-data" action="./convert.php">
 								<div class="col-lg-6">
 									<div class="card shadow-sm border-danger-subtle">
 										<input type="file" name="keyfile" accept=".key" id="keyfile" class="hidden">
@@ -275,10 +80,14 @@
 										</div>
 
 										<div class="col-md-12" title="Generar claves">
-											<div class="input-group">
-												<button id="generate" type="submit" class="form-control btn btn-primary">
+											<div id="generate" class="input-group">
+												<button type="submit" class="form-control btn btn-primary">
 													<i class="fa-solid fa-wand-magic-sparkles me-1"></i>
 													Convertir clave
+												</button>
+												<button type="submit" class="form-control btn btn-primary hidden">
+													<span class="spinner-border spinner-border-sm me-3" role="status"></span>
+													Convirtiendo clave...
 												</button>
 											</div>
 										</div>
