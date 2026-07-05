@@ -86,7 +86,7 @@
 					$(this).closest(".card").find("textarea").val($(this)[0].files[0].name);
 				});
 
-				$(".tool-action-btn.upload").closest(".card-header").on({
+				$(".tool-action-btn.upload").closest(".card").on({
 					'dragover': function(event) {
 						$(this).addClass('dragover');
 						event.preventDefault();
