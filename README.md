@@ -10,6 +10,8 @@
 
 A self-hosted collection of tools for generating, converting and inspecting cryptographic keys and related formats.
 
+> **Generate, convert and inspect cryptographic keys without sending sensitive data to third-party services.**
+
 ## Why?
 
 Many online tools are extremely useful when you need to generate a key pair, convert between formats or inspect certificates. However, using a third-party website means trusting that sensitive material is handled correctly.
@@ -26,7 +28,7 @@ Deploy it on your workstation, development machine or internal server and proces
 * Browser-based interface.
 * Self-hosted.
 * Open source.
-* Easy deployment.
+* Easy deployment with Composer.
 
 ## Why self-host?
 
@@ -40,29 +42,33 @@ Although many online cryptographic tools perform all operations locally in the b
 
 ## Installation
 
-Clone the repository:
+### Recommended
+
+Install the latest version directly with Composer:
 
 ```bash
-git clone https://github.com/<username>/<repository>.git
-cd <repository>
-composer update -W
+composer create-project alphp/crypto-key-tools
 ```
 
-Serve the project using any web server capable of serving static files (or follow the project-specific deployment instructions).
+The project will be installed in a new `crypto-key-tools` directory, ready to be served by your web server.
 
-Examples:
+### From source
 
-* Apache
-* Nginx
-* Caddy
-* PHP built-in server (if applicable)
+If you want to contribute or modify the project, clone the repository instead:
+
+```bash
+git clone https://github.com/alphp/crypto-key-tools.git
+cd crypto-key-tools
+composer install
+```
 
 ## Usage
 
-1. Open the application in your browser.
-2. Select the desired cryptographic operation.
-3. Generate, inspect or convert your keys.
-4. Download or copy the resulting data.
+1. Deploy the project to your web server (or run it locally).
+2. Open the application in your browser.
+3. Select the desired cryptographic operation.
+4. Generate, inspect or convert your keys.
+5. Save or copy the generated output.
 
 ## Security
 
@@ -92,4 +98,4 @@ Feel free to open an issue or submit a pull request if you have ideas for new fe
 
 ## License
 
-This project is released under the terms of the project's license.
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
