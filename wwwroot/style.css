@@ -7,7 +7,6 @@
 .card-body > .font-monospace { font-family: "Fira Code", monospace !important; font-size: .70rem; min-height: 12rem; border: none; resize: none; white-space: nowrap; }
 .card-body > .font-monospace.min { min-height: 3.6rem; }
 .card-body > #ssh { min-height: auto; }
-.card-body a { text-decoration: none; color: inherit; }
 .dragover { border: 2px dashed #999; background-color: #eee; }
 .hidden { display: none !important; }
 .header > h1 { cursor: pointer; }
