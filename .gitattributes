@@ -52,3 +52,9 @@
 *.sccu binary
 *.iptc binary
 *.irb binary
+
+# Avoid exporting to vendor
+/.*                export-ignore
+!.htaccess         export-ignore
+/vendor            export-ignore
+/composer.lock     export-ignore
