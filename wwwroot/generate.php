@@ -1,7 +1,7 @@
 <?php
 	declare(strict_types=1);
 
-	require __DIR__ . '/vendor/autoload.php';
+	require dirname(__DIR__) . '/vendor/autoload.php';
 
 	use phpseclib3\Crypt\Common\PrivateKey;
 	use phpseclib3\Crypt\EC;
