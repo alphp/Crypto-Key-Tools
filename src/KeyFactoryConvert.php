@@ -1,14 +1,16 @@
 <?php
 	declare(strict_types=1);
 
-	require dirname(__DIR__) . '/vendor/autoload.php';
+	namespace Alphp\CryptoKeyTools;
 
+	use Exception;
 	use phpseclib3\Crypt\Common\PrivateKey;
 	use phpseclib3\Crypt\EC\PrivateKey as ECPrivateKey;
 	use phpseclib3\Crypt\PublicKeyLoader;
 	use phpseclib3\Crypt\RSA\PrivateKey as RSAPrivateKey;
+	use Throwable;
 
-	class KeyFactory {
+	class KeyFactoryConvert {
 		protected string $comment;
 		protected PrivateKey|false $private;
 
@@ -20,7 +22,7 @@
 				default => 'id_' . basename(dirname($this->private::class)),
 			};
 		}
-		public static function init () : KeyFactory {
+		public static function init () : KeyFactoryConvert {
 			/** @var array{'comment': string, 'password': string|false, 'key': string|false} */
 			$input = filter_input_array(INPUT_POST, [
 				'comment' => [
@@ -77,6 +79,12 @@
 			return false;
 		}
 
+		public function response () : void {
+			header('Content-Type: application/json; charset=utf-8');
+			header('Cache-Control: no-store');
+			echo $this->__toString();
+		}
+
 		public function __toString() : string {
 			if (false === $this->private) {
 				http_response_code(500);
@@ -103,10 +111,3 @@
 		}
 	}
 
-	$key = KeyFactory::init();
-
-	$json = $key->__toString();
-
-	header('Content-Type: application/json');
-	header('Cache-Control: no-store');
-	echo $json;

@@ -1,7 +1,7 @@
 <?php
 	declare(strict_types=1);
 
-	require dirname(__DIR__) . '/vendor/autoload.php';
+	namespace Alphp\CryptoKeyTools;
 
 	use phpseclib3\Crypt\Common\PrivateKey;
 	use phpseclib3\Crypt\EC;
@@ -9,7 +9,7 @@
 	use phpseclib3\Crypt\PublicKeyLoader;
 	use phpseclib3\Crypt\RSA;
 
-	class KeyFactory {
+	class KeyFactoryGenerate {
 		protected string $algo;
 		protected PrivateKey $private;
 
@@ -17,7 +17,7 @@
 			$this->algo = ($bits > 1024) ? 'RSA' : 'Ed25519';
 			$this->private = $this->generate();
 		}
-		public static function init () : KeyFactory {
+		public static function init () : KeyFactoryGenerate {
 			/** @var array{'bits': int, 'comment': string, 'password': string|false} */
 			$input = filter_input_array(INPUT_POST, [
 				'bits' => [
@@ -57,6 +57,12 @@
 			};
 		}
 
+		public function response () : void {
+			header('Content-Type: application/json; charset=utf-8');
+			header('Cache-Control: no-store');
+			echo $this->__toString();
+		}
+
 		public function __toString() : string {
 			$public = $this->private->getPublicKey();
 
@@ -77,11 +83,3 @@
 			return $json;
 		}
 	}
-
-	$key = KeyFactory::init();
-
-	$json = $key->__toString();
-
-	header('Content-Type: application/json');
-	header('Cache-Control: no-store');
-	echo $json;

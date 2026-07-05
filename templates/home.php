@@ -1,3 +1,11 @@
+<?php
+	declare(strict_types=1);
+
+	/**
+	 * @var string $generate;
+	 * @var string $convert;
+	 */
+?>
 <!DOCTYPE html>
 <html lang="es">
 	<head>
@@ -35,7 +43,7 @@
 								</p>
 							</div>
 
-							<form id="options" class="row g-3" action="./generate.php">
+							<form id="options" class="row g-3" action="<?php echo $generate; ?>">
 								<div class="col-md-3" title="Bits">
 									<div class="input-group">
 										<span class="input-group-text"><i class="fa-solid fa-microchip me-1"></i></span>
@@ -90,7 +98,7 @@
 								</p>
 							</div>
 
-							<form id="options" class="row g-3 hidden" enctype="multipart/form-data" action="./convert.php">
+							<form id="options" class="row g-3 hidden" enctype="multipart/form-data" action="<?php echo $convert; ?>">
 								<div class="col-lg-6">
 									<div class="card shadow-sm border-danger-subtle">
 										<input type="file" name="keyfile" accept=".key" id="keyfile" class="hidden">
