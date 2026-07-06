@@ -5,8 +5,8 @@
 
 	class HomeView extends View {
 		public function response () : void {
-			$generate = BASE . 'generate';
-			$convert = BASE . 'convert';
+			$generate = REQUEST_BASE . 'generate';
+			$convert = REQUEST_BASE . 'convert';
 
 			include TEMPLATES . 'home.php';
 		}

@@ -9,9 +9,9 @@
 
   # Capturar dinámicamente la base de la URL actual mediante REQUEST_URI
   # Compara el archivo index.php físico con la URL para extraer la subcarpeta exacta
-  # Se registra como $_SERVER['BASE']
+  # Se registra como $_SERVER['REQUEST_BASE']
   RewriteCond %{REQUEST_URI}::$1 ^(.*?)([^/]+)::\2$
-  RewriteRule ^(.*)$ - [E=BASE:%1]
+  RewriteRule ^(.*)$ - [E=REQUEST_BASE:%1]
 
 
   # Si piden index.php directamente, detenerse
@@ -20,5 +20,5 @@
   # Verificar si el archivo o carpeta física NO existen
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . %{ENV:BASE}index.php [L]
+  RewriteRule . %{ENV:REQUEST_BASE}index.php [L]
 </IfModule>

@@ -3,9 +3,15 @@
 
 	require __DIR__ . '/vendor/autoload.php';
 
+	/**
+	 * Emulate $_SERVER['REQUEST_BASE'] for IIS
+	 */
+	$request_base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/';
+	$_SERVER['REQUEST_BASE'] ??= $request_base;
+
 	define('DS', DIRECTORY_SEPARATOR);
 	define('ROOT', __DIR__);
-	define('BASE', $_SERVER['BASE'] ?? '/');
+	define('REQUEST_BASE', $_SERVER['REQUEST_BASE'] ?? '/');
 	define('TEMPLATES', __DIR__ . DS . 'templates' . DS);
 
 	use Alphp\CryptoKeyTools\KeyFactoryConvert;
@@ -15,8 +21,8 @@
 	use Alphp\CryptoKeyTools\View\HomeView;
 
 	$disallow = [
-		BASE . 'generate',
-		BASE . 'convert',
+		REQUEST_BASE . 'generate',
+		REQUEST_BASE . 'convert',
 	];
 
 	if ('GET' === $_SERVER['REQUEST_METHOD'] and in_array($_SERVER['REQUEST_URI'], $disallow)) {
@@ -25,9 +31,9 @@
 	}
 
 	$controller = match($_SERVER['REQUEST_URI']) {
-		BASE              => new HomeView(),
-		BASE . 'generate' => KeyFactoryGenerate::init(),
-		BASE . 'convert'  => KeyFactoryConvert::init(),
+		REQUEST_BASE              => new HomeView(),
+		REQUEST_BASE . 'generate' => KeyFactoryGenerate::init(),
+		REQUEST_BASE . 'convert'  => KeyFactoryConvert::init(),
 		default           => new Error404View(),
 	};
 
