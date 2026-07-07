@@ -4,9 +4,11 @@
 	namespace Alphp\CryptoKeyTools\View;
 
 	class HomeView extends View {
+		public const REQUEST_URI = REQUEST_BASE;
+
 		public function response () : void {
-			$generate = REQUEST_BASE . 'generate';
-			$convert = REQUEST_BASE . 'convert';
+			$generate = KeyFactoryGenerateView::REQUEST_URI;
+			$convert = KeyFactoryConvertView::REQUEST_URI;
 
 			include TEMPLATES . 'home.php';
 		}

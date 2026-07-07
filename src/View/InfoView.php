@@ -3,11 +3,10 @@
 
 	namespace Alphp\CryptoKeyTools\View;
 
-	class View {
-		public static function init () : static {
-			return new static;
-		}
+	class InfoView extends View {
+		public const REQUEST_URI = REQUEST_BASE . 'info';
 
 		public function response () : void {
+			phpinfo(INFO_VARIABLES);
 		}
 	}

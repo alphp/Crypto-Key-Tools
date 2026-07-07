@@ -1,24 +1,19 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Conservar cabeceras de autorización
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-  # Ocultar web.config devolviendo un error 404
-  RewriteRule ^web\.config$ - [R=404,L,NC]
+  RewriteCond %{THE_REQUEST} \.config [OR]
+  RewriteCond %{THE_REQUEST} \.env [OR]
+  RewriteCond %{THE_REQUEST} /\.git [OR]
+  RewriteCond %{THE_REQUEST} \.php[\s?]
+  RewriteRule . index.php [L]
 
-  # Capturar dinámicamente la base de la URL actual mediante REQUEST_URI
-  # Compara el archivo index.php físico con la URL para extraer la subcarpeta exacta
-  # Se registra como $_SERVER['REQUEST_BASE']
-  RewriteCond %{REQUEST_URI}::$1 ^(.*?)([^/]+)::\2$
-  RewriteRule ^(.*)$ - [E=REQUEST_BASE:%1]
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.php -f
+  RewriteRule ^(.*)$ $1.php [QSA,L]
 
-
-  # Si piden index.php directamente, detenerse
-  RewriteRule ^index\.php$ - [L]
-
-  # Verificar si el archivo o carpeta física NO existen
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . %{ENV:REQUEST_BASE}index.php [L]
+  RewriteRule . index.php [QSA,L]
 </IfModule>

@@ -1,7 +1,7 @@
 <?php
 	declare(strict_types=1);
 
-	namespace Alphp\CryptoKeyTools;
+	namespace Alphp\CryptoKeyTools\View;
 
 	use phpseclib3\Crypt\Common\PrivateKey;
 	use phpseclib3\Crypt\EC;
@@ -9,7 +9,9 @@
 	use phpseclib3\Crypt\PublicKeyLoader;
 	use phpseclib3\Crypt\RSA;
 
-	class KeyFactoryGenerate {
+	class KeyFactoryGenerateView extends View{
+		public const REQUEST_URI = REQUEST_BASE . 'generate';
+
 		protected string $algo;
 		protected PrivateKey $private;
 
@@ -17,7 +19,12 @@
 			$this->algo = ($bits > 1024) ? 'RSA' : 'Ed25519';
 			$this->private = $this->generate();
 		}
-		public static function init () : KeyFactoryGenerate {
+		public static function init () : static {
+			if ('GET' === $_SERVER['REQUEST_METHOD']) {
+				Error405View::init()->response();
+				exit;
+			}
+
 			/** @var array{'bits': int, 'comment': string, 'password': string|false} */
 			$input = filter_input_array(INPUT_POST, [
 				'bits' => [

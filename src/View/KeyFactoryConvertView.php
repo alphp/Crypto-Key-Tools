@@ -1,7 +1,7 @@
 <?php
 	declare(strict_types=1);
 
-	namespace Alphp\CryptoKeyTools;
+	namespace Alphp\CryptoKeyTools\View;
 
 	use Exception;
 	use phpseclib3\Crypt\Common\PrivateKey;
@@ -10,7 +10,9 @@
 	use phpseclib3\Crypt\RSA\PrivateKey as RSAPrivateKey;
 	use Throwable;
 
-	class KeyFactoryConvert {
+	class KeyFactoryConvertView extends View {
+		public const REQUEST_URI = REQUEST_BASE . 'convert';
+
 		protected string $comment;
 		protected PrivateKey|false $private;
 
@@ -22,7 +24,12 @@
 				default => 'id_' . basename(dirname($this->private::class)),
 			};
 		}
-		public static function init () : KeyFactoryConvert {
+		public static function init () : static {
+			if ('GET' === $_SERVER['REQUEST_METHOD']) {
+				Error405View::init()->response();
+				exit;
+			}
+
 			/** @var array{'comment': string, 'password': string|false, 'key': string|false} */
 			$input = filter_input_array(INPUT_POST, [
 				'comment' => [
