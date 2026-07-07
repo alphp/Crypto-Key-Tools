@@ -18,27 +18,14 @@ Many online tools are extremely useful when you need to generate a key pair, con
 
 **Crypto Key Tools** is designed for users and organizations that prefer to keep cryptographic material entirely within their own infrastructure.
 
-Deploy it on your workstation, development machine or internal server and process your keys without sending them to external services.
-
 ## Features
 
 * Generate cryptographic key pairs.
 * Convert keys between multiple formats.
 * Inspect keys, certificates and related cryptographic data.
 * Browser-based interface.
-* Self-hosted.
-* Open source.
+* Agnostic Routing: Consistent behavior across LAMP (Apache), IIS, and PHP's built-in server.
 * Easy deployment with Composer.
-
-## Why self-host?
-
-Although many online cryptographic tools perform all operations locally in the browser, self-hosting provides additional benefits:
-
-* You control the application that is being executed.
-* No dependency on the availability of external websites.
-* Suitable for isolated or air-gapped environments.
-* Compatible with corporate security policies.
-* No need to expose sensitive material outside your network.
 
 ## Installation
 
@@ -54,13 +41,25 @@ The project will be installed in a new `crypto-key-tools` directory, ready to be
 
 ### From source
 
-If you want to contribute or modify the project, clone the repository instead:
-
 ```bash
 git clone https://github.com/alphp/crypto-key-tools.git
 cd crypto-key-tools
 composer install
 ```
+
+## Local Development
+
+For quick testing or development, you can use PHP's built-in web server. Since the project follows a Front Controller pattern where the entry point is located in the `wwwroot` directory, you must point the document root to that folder:
+
+```bash
+# From the project root directory
+php -S localhost:8000 -t wwwroot
+```
+
+## Why this works:
+
+* **Agnostic Routing**: The system automatically calculates the `REQUEST_BASE`, ensuring that all internal links and the MiniRouter work correctly without manual configuration.
+* **Security by Design**: By serving only the `wwwroot` folder, sensitive files like `bootstrap.php`, `constants.php`, and the `templates` directory remain outside the web-accessible path.
 
 ## Usage
 
@@ -68,33 +67,13 @@ composer install
 2. Open the application in your browser.
 3. Select the desired cryptographic operation.
 4. Generate, inspect or convert your keys.
-5. Save or copy the generated output.
 
 ## Security
 
 This project is intended to be run on systems that you control.
 
-For maximum security:
-
-* Use HTTPS whenever possible.
-* Restrict access to trusted users.
-* Keep your deployment up to date.
-* Verify generated results before using them in production.
-
-## Inspiration
-
-This project was inspired by the excellent online utilities available at:
-
-https://8gwifi.org/sshfunctions.jsp
-https://emn178.github.io/online-tools/rsa/key-generator/
-
-The goal is **not** to replace those tools, but to provide a self-hosted alternative for environments where privacy, availability or compliance requirements make external services undesirable.
-
-## Contributing
-
-Contributions are welcome.
-
-Feel free to open an issue or submit a pull request if you have ideas for new features, improvements or bug fixes.
+* The system protects against direct access to sensitive files (`.env`, `.git`, `.config`) by routing them to the Front Controller for a controlled 404 state.
+* Use HTTPS whenever possible and restrict access to trusted users.
 
 ## License
 
