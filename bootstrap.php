@@ -6,6 +6,10 @@
 	use Alphp\CryptoKeyTools\Request;
 	use Alphp\CryptoKeyTools\Router;
 	use Alphp\CryptoKeyTools\View\Error404View;
+	use Alphp\CryptoKeyTools\View\KeyFactoryConvertView;
+	use Alphp\CryptoKeyTools\View\KeyFactoryGenerateView;
+	use Alphp\CryptoKeyTools\View\HomeView;
+	use Alphp\CryptoKeyTools\View\InfoView;
 
 	define('DS', DIRECTORY_SEPARATOR);
 	define('ROOT', __DIR__);
@@ -16,11 +20,6 @@
 	$request = Request::init();
 
 	$request->runPHP();
-
-	use Alphp\CryptoKeyTools\View\KeyFactoryConvertView;
-	use Alphp\CryptoKeyTools\View\KeyFactoryGenerateView;
-	use Alphp\CryptoKeyTools\View\HomeView;
-	use Alphp\CryptoKeyTools\View\InfoView;
 
 	$router = Router::init($request, Error404View::class);
 
