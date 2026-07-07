@@ -7,9 +7,23 @@
     "require": {
         "phpseclib/phpseclib": "^3.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
+    },
     "autoload": {
         "psr-4": {
             "Alphp\\CryptoKeyTools\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alphp\\CryptoKeyTools\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "scripts-descriptions": {
+        "test": "Run PHPUnit tests"
     }
 }

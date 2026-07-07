@@ -40,7 +40,9 @@
 			return $this->request_path;
 		}
 
-		public static function init () : Request {
+		public static function init (?string $request_uri = null) : Request {
+			$_SERVER['REQUEST_URI'] = $request_uri ?? $_SERVER['REQUEST_URI'];
+
 			return new Request();
 		}
 	}
