@@ -10,6 +10,9 @@
     "require-dev": {
         "phpunit/phpunit": "^12.5"
     },
+    "suggest": {
+        "ext-openssl": "*"
+    },
     "autoload": {
         "psr-4": {
             "Alphp\\CryptoKeyTools\\": "src/"
