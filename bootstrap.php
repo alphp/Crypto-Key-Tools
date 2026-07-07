@@ -2,6 +2,7 @@
 	declare(strict_types=1);
 
 	require __DIR__ . '/vendor/autoload.php';
+	require __DIR__ . '/constants.php';
 
 	use Alphp\CryptoKeyTools\Request;
 	use Alphp\CryptoKeyTools\Router;
@@ -10,12 +11,6 @@
 	use Alphp\CryptoKeyTools\View\KeyFactoryGenerateView;
 	use Alphp\CryptoKeyTools\View\HomeView;
 	use Alphp\CryptoKeyTools\View\InfoView;
-
-	define('DS', DIRECTORY_SEPARATOR);
-	define('ROOT', __DIR__);
-	define('WWWROOT', __DIR__ . DS . 'wwwroot' . DS);
-	define('REQUEST_BASE', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
-	define('TEMPLATES', __DIR__ . DS . 'templates' . DS);
 
 	$request = Request::init();
 
