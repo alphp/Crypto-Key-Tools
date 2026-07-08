@@ -181,7 +181,7 @@ $(function () {
     if (!text) return;
 
     const file = document.createElement("a");
-    file.download = ($("#comment").val() || "id_rsa") + $(this).data("extension");
+    file.download = ($("form").not('.hidden').find("#comment").val() || "id_rsa") + $(this).data("extension");
     file.href = URL.createObjectURL(
       new Blob([text], { type: $(this).data("mimetype") })
     );

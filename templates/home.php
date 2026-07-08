@@ -100,7 +100,7 @@
 							<form id="options" class="row g-3 hidden" enctype="multipart/form-data" action="<?php echo $convert; ?>">
 								<div class="col-lg-6">
 									<div class="card shadow-sm border-danger-subtle">
-										<input type="file" name="keyfile" accept=".key" id="keyfile" class="hidden">
+										<input type="file" name="keyfile" accept=".key,.ppk" id="keyfile" class="hidden">
 										<div class="card-header bg-danger-subtle d-flex justify-content-between align-items-center">
 											<strong><i class="fa-solid fa-user-secret me-2"></i>Private Key</strong>
 											<div class="key-file"></div>
